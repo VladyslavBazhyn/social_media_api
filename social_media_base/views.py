@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import viewsets
 
-# Create your views here.
+from social_media_base.models import Post
+from social_media_base.serializers import PostBaseSerializer
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostBaseSerializer
+    queryset = Post.objects.all()

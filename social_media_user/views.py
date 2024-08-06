@@ -25,8 +25,8 @@ class ManageUserViewSet(generics.RetrieveUpdateDestroyAPIView):
     """
 
     serializer_class = UserManageSerializer  # Maybe better to wrote different here?
-    permission_classes = None  # UserThemselvesPermission need to wrote
-    authentication_classes = None  # Need to add JWT authentication
+    permission_classes = []  # UserThemselvesPermission need to wrote
+    authentication_classes = []  # Need to add JWT authentication
 
     def get_object(self):
         return self.request.user
@@ -36,8 +36,8 @@ class UserViewSet(viewsets.ModelViewSet):
     """View set for retrieving different data about user by other users"""
 
     queryset = get_user_model().objects.all()
-    permission_classes = None  # IfAuthenticatedReadOnly
-    authentication_classes = None  # Need to add JWT authentication
+    permission_classes = []  # IfAuthenticatedReadOnly
+    authentication_classes = []  # Need to add JWT authentication
 
     def get_serializer_class(self):
         """

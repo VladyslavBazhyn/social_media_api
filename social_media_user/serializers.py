@@ -12,6 +12,11 @@ class UserBaseSerializer(serializers.ModelSerializer):
             "id",
             "email",
             "password",
+            "bio",
+            "birth_date",
+            "nickname",
+            "image",
+            "my_subscriptions",
             "is_stuff"
         )
 
@@ -28,3 +33,47 @@ class UserBaseSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
+
+
+class UserCreateSerializer(UserBaseSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "id",
+            "email",
+            "password"
+        ]
+
+
+class UserManageSerializer(UserBaseSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "nickname",
+            "bio",
+            "birth_date",
+            "image",
+            "my_subscriptions",
+        ]
+
+
+class UserListSerializer(UserBaseSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "nickname",
+            "birth_date",
+            "image",
+        ]
+
+
+class UserDetailSerializer(UserBaseSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "email",
+            "birth_date",
+            "nickname",
+            "image",
+            "bio",
+        ]

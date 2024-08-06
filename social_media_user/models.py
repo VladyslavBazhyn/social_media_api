@@ -61,6 +61,7 @@ class User(AbstractUser):
     bio = models.TextField(default="Any biography here")
     birth_date = models.DateField(null=True, blank=True)
     image = models.ImageField(upload_to=user_image_file_path, blank=True, null=True)
+    nickname = models.TextField(blank=True)
     my_subscriptions = models.ManyToManyField(
         "self",
         related_name="my_followers",

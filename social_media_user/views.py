@@ -3,6 +3,7 @@ from drf_spectacular.types import OpenApiTypes
 from rest_framework import generics, viewsets
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from social_media_user.serializers import (
     UserCreateSerializer,
@@ -15,7 +16,8 @@ class CreateUserViewSet(generics.CreateAPIView):
     View set for new users to create an account
     """
     serializer_class = UserCreateSerializer
-    permission_classes = []  # Any permissions here, everyone need to be able to create new account
+    permission_classes = []  # Nothing permissions here, everyone need to be able to create new account
+    authentication_classes = []  # Nothing authentication here, everyone need to be able to create new account
 
 
 class ManageUserViewSet(generics.RetrieveUpdateDestroyAPIView):
@@ -26,7 +28,7 @@ class ManageUserViewSet(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = UserManageSerializer  # Maybe better to wrote different here?
     permission_classes = []  # UserThemselvesPermission need to wrote
-    authentication_classes = []  # Need to add JWT authentication
+    authentication_classes = [JWTAuthentication]
 
     def get_object(self):
         return self.request.user
@@ -37,7 +39,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = get_user_model().objects.all()
     permission_classes = []  # IfAuthenticatedReadOnly
-    authentication_classes = []  # Need to add JWT authentication
 
     def get_serializer_class(self):
         """

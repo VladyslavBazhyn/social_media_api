@@ -15,5 +15,4 @@ router.register("posts", PostViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("users/", include("social_media_user.urls", namespace="user"))
 ]

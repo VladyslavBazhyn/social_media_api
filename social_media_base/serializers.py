@@ -10,7 +10,7 @@ class PostBaseSerializer(serializers.ModelSerializer):
             "id",
             "post_image",
             "text",
-            "user",
+            "owner",
             "like_unlike",
             "comment"
         ]

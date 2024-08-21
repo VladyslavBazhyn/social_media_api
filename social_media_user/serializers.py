@@ -44,6 +44,7 @@ class UserCreateSerializer(UserBaseSerializer):
             "email",
             "password"
         ]
+        extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
 
 
 class UserManageSerializer(UserBaseSerializer):

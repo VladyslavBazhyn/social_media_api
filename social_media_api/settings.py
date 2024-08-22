@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "social_media_user",
     "rest_framework",
     "drf_spectacular",
-    "rest_framework_simplejwt"
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist"
 ]
 
 MIDDLEWARE = [

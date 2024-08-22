@@ -26,6 +26,7 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError("Email must be sent")
         email = self.normalize_email(email)
+        extra_fields.pop("password2")
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)

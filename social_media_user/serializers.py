@@ -37,14 +37,27 @@ class UserBaseSerializer(serializers.ModelSerializer):
 
 
 class UserCreateSerializer(UserBaseSerializer):
+    password2 = serializers.CharField(write_only=True, required=True)
+
     class Meta:
         model = get_user_model()
         fields = [
             "id",
             "email",
-            "password"
+            "password",
+            "password2"
         ]
-        extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
+        extra_kwargs = {
+            "password": {"write_only": True, "min_length": 5},
+            "password2": {"write_only": True, "min_length": 5}
+        }
+
+    def validate(self, attrs):
+        """VFunction to validate whether two wrote passwords are same"""
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        return attrs
 
 
 class UserManageSerializer(UserBaseSerializer):

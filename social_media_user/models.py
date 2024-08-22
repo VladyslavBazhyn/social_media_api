@@ -57,14 +57,24 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
+    #  Credentials
     username = None
     email = models.EmailField(_("email address"), unique=True)
+
+    #  User data itself
     bio = models.TextField(default="Any biography here")
     birth_date = models.DateField(null=True, blank=True)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
+
+    # User's displaying for other users
     image = models.ImageField(upload_to=user_image_file_path, blank=True, null=True)
-    nickname = models.TextField(blank=True)
+    nickname = models.TextField(blank=True, null=True, unique=True)
+
+    #  User's preferences in social media
     my_subscriptions = models.ManyToManyField(
         "self",
         related_name="my_followers",
-        symmetrical=False
+        symmetrical=False,
+        blank=True
     )

@@ -35,7 +35,9 @@ class ManageUserViewSet(generics.RetrieveUpdateDestroyAPIView):
     to make all manipulation with their own account
     """
 
-    serializer_class = UserManageSerializer  # Maybe better to wrote different here?
+    queryset = get_user_model().objects.all()
+    serializer_class = UserManageSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         return self.request.user

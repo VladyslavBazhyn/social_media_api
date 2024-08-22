@@ -28,8 +28,8 @@ class UserBaseSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Update a user, set the password correctly and return it"""
         password = validated_data.pop("password", None)
-        validated_data.pop("password2")
-        validated_data.pop("old_password")
+        validated_data.pop("password2", None)
+        validated_data.pop("old_password", None)
         user = super().update(instance, validated_data)
         if password:
             user.set_password(password)
@@ -39,7 +39,10 @@ class UserBaseSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """Function to validate whether two wrote passwords are same"""
-        if attrs["password"] != attrs["password2"]:
+        if (
+            (attrs.get("password") and attrs.get("password2"))
+            and (attrs["password"] != attrs["password2"])
+        ):
             raise serializers.ValidationError({"password": "Password fields didn't match."})
 
         return attrs
@@ -51,6 +54,18 @@ class UserBaseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"old_password": "Old password is not correct"})
         return value
 
+    def validate_email(self, value):
+        user = self.context["request"].user
+        if get_user_model().objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError({"email": "This email is already in use."})
+        return value
+
+    def validate_nickname(self, value):
+        user = self.context["request"].user
+        if get_user_model().objects.exclude(pk=user.pk).filter(nickname=value).exists():
+            raise serializers.ValidationError({"nickname": "This nickname is already in use."})
+        return value
+
 
 class UserCreateSerializer(UserBaseSerializer):
     password2 = serializers.CharField(write_only=True, required=True)
@@ -60,6 +75,7 @@ class UserCreateSerializer(UserBaseSerializer):
         fields = [
             "id",
             "email",
+            "nickname",
             "password",
             "password2"
         ]
@@ -79,17 +95,20 @@ class UserChangePasswordSerializer(UserBaseSerializer):
 
 
 class UserManageSerializer(UserBaseSerializer):
+    first_name = serializers.CharField(max_length=255)
+    last_name = serializers.CharField(max_length=255)
+
     class Meta:
         model = get_user_model()
         fields = [
-            "id",
             "nickname",
+            "first_name",
+            "last_name",
             "bio",
             "birth_date",
             "image",
             "my_subscriptions",
         ]
-        extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
 
 
 class UserListSerializer(UserBaseSerializer):

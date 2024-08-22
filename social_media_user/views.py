@@ -4,7 +4,7 @@ from rest_framework import generics, viewsets, permissions
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from social_media_api.permissions import IsOwnerOrReadOnly
+from social_media_api.permissions import IsOwnerOrReadOnly, IsUserItself
 from social_media_user.serializers import (
     UserCreateSerializer,
     UserManageSerializer,
@@ -25,7 +25,7 @@ class CreateUserViewSet(generics.CreateAPIView):
 
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = get_user_model().objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsUserItself]
     serializer_class = UserChangePasswordSerializer
 
 

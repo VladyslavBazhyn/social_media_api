@@ -27,10 +27,13 @@ class UserBaseSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update a user, set the password correctly and return it"""
+
         password = validated_data.pop("password", None)
         validated_data.pop("password2", None)
         validated_data.pop("old_password", None)
+
         user = super().update(instance, validated_data)
+
         if password:
             user.set_password(password)
             user.save()

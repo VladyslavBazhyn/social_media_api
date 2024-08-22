@@ -18,6 +18,16 @@ class IfAuthenticatedReadAndCreate(permissions.BasePermission):
         )
 
 
+class IsUserItself(permissions.BasePermission):
+    """
+    Object-level permission to only allow user itself to change his password
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Changing password allowed only for user itself
+        return obj == request.user
+
+
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Object-level permission to only allow owners of an object to edit it.

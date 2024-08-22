@@ -1,14 +1,15 @@
 from django.contrib.auth import get_user_model
 from drf_spectacular.types import OpenApiTypes
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, permissions
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
+from social_media_api.permissions import IsOwnerOrReadOnly
 from social_media_user.serializers import (
     UserCreateSerializer,
     UserManageSerializer,
     UserListSerializer,
-    UserDetailSerializer
+    UserDetailSerializer, UserChangePasswordSerializer
 )
 
 
@@ -17,8 +18,15 @@ class CreateUserViewSet(generics.CreateAPIView):
     View set for new users to create an account
     """
     serializer_class = UserCreateSerializer
-    permission_classes = []  # Nothing permissions here, everyone need to be able to create new account
+    queryset = get_user_model().objects.all()
+    permission_classes = [permissions.AllowAny]  # Everyone need to be able to create new account
     authentication_classes = []  # Nothing authentication here, everyone need to be able to create new account
+
+
+class ChangePasswordView(generics.UpdateAPIView):
+    queryset = get_user_model().objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserChangePasswordSerializer
 
 
 class ManageUserViewSet(generics.RetrieveUpdateDestroyAPIView):

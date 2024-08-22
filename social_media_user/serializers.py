@@ -28,12 +28,28 @@ class UserBaseSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Update a user, set the password correctly and return it"""
         password = validated_data.pop("password", None)
+        validated_data.pop("password2")
+        validated_data.pop("old_password")
         user = super().update(instance, validated_data)
         if password:
             user.set_password(password)
             user.save()
 
         return user
+
+    def validate(self, attrs):
+        """Function to validate whether two wrote passwords are same"""
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        return attrs
+
+    def validate_old_password(self, value):
+        """Function to validate whether old password wrote correctly"""
+        user = self.context["request"].user
+        if not user.check_password(value):
+            raise serializers.ValidationError({"old_password": "Old password is not correct"})
+        return value
 
 
 class UserCreateSerializer(UserBaseSerializer):
@@ -52,12 +68,14 @@ class UserCreateSerializer(UserBaseSerializer):
             "password2": {"write_only": True, "min_length": 5}
         }
 
-    def validate(self, attrs):
-        """VFunction to validate whether two wrote passwords are same"""
-        if attrs["password"] != attrs["password2"]:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
 
-        return attrs
+class UserChangePasswordSerializer(UserBaseSerializer):
+    password2 = serializers.CharField(write_only=True, required=True)
+    old_password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = get_user_model()
+        fields = ["old_password", "password", "password2"]
 
 
 class UserManageSerializer(UserBaseSerializer):

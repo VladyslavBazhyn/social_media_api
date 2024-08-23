@@ -1,15 +1,22 @@
 from django.contrib.auth import get_user_model
-from drf_spectacular.types import OpenApiTypes
-from rest_framework import generics, viewsets, permissions
 
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from social_media_api.permissions import IsOwnerOrReadOnly, IsUserItself
+from rest_framework import generics, viewsets, permissions, views, response, status
+
+from rest_framework_simplejwt import tokens
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+
+from social_media_api import authentication
+from social_media_api.permissions import IsUserItself
+from social_media_user.models import BlacklistedAccessToken
 from social_media_user.serializers import (
     UserCreateSerializer,
     UserManageSerializer,
     UserListSerializer,
-    UserDetailSerializer, UserChangePasswordSerializer
+    UserDetailSerializer,
+    UserChangePasswordSerializer
 )
 
 
@@ -41,6 +48,40 @@ class ManageUserViewSet(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserLogoutView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            if not refresh_token:
+                return response.Response({"error": "No refresh token provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+            token = tokens.RefreshToken(refresh_token)
+            token.blacklist()
+
+            access_token = request.headers.get("Authorization").split()[1]
+            BlacklistedAccessToken.objects.create(
+                token=access_token,
+                user=request.user
+            )
+
+            return response.Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return response.Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserLogoutAllView(views.APIView):
+    permission_classes = [IsUserItself]
+
+    def post(self, request):
+        tokens = OutstandingToken.objects.filter(user_id=request.user.id)
+        for token in tokens:
+            t, _ = BlacklistedToken.objects.get_or_create(token=token)
+
+        return response.Response(status=status.HTTP_205_RESET_CONTENT)
 
 
 class UserViewSet(viewsets.ModelViewSet):

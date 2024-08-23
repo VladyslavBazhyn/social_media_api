@@ -140,7 +140,7 @@ MEDIA_URL = "/media/"
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "social_media_api.authentication.UserCustomAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "social_media_api.permissions.IfAuthenticatedReadAndCreate",
@@ -150,7 +150,9 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
-    "ROTATE_REFRESH_TOKENS": False,
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True
+    #  Some algorithm and signing key here
 }
 
 SPECTACULAR_SETTINGS = {

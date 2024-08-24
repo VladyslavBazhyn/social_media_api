@@ -110,7 +110,6 @@ class UserManageSerializer(UserBaseSerializer):
             "bio",
             "birth_date",
             "image",
-            "my_subscriptions",
         ]
 
 

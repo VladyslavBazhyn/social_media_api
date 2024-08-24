@@ -105,7 +105,7 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         queryset = self.queryset
 
-        nickname = self.request.data.get("nickname", None)
+        nickname = self.request.query_params.get("nickname", None)
 
         if nickname:
             queryset = queryset.filter(nickname__icontains=nickname)

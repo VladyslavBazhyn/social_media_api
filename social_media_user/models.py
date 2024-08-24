@@ -73,9 +73,9 @@ class User(AbstractUser):
     nickname = models.TextField(blank=True, null=True, unique=True)
 
     #  User's preferences in social media
-    my_subscriptions = models.ManyToManyField(
+    following = models.ManyToManyField(
         "self",
-        related_name="my_followers",
+        related_name="followers",
         symmetrical=False,
         blank=True
     )

@@ -132,4 +132,6 @@ class UserDetailSerializer(UserBaseSerializer):
             "nickname",
             "image",
             "bio",
+            "following",
+            "followers"
         ]

@@ -1,9 +1,17 @@
+from typing import Any
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from rest_framework import generics, viewsets, permissions, views, response, status
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.reverse import reverse_lazy
 
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
@@ -18,6 +26,22 @@ from social_media_user.serializers import (
     UserDetailSerializer,
     UserChangePasswordSerializer
 )
+
+
+@login_required
+def follow(request, pk):
+    user_to_follow = get_object_or_404(get_user_model(), id=pk)
+    if not request.user.following.filter(id=pk).exists():
+        request.user.following.add(user_to_follow)
+    return HttpResponseRedirect(reverse_lazy("base:user-detail", kwargs={"pk": pk}))
+
+
+@login_required
+def unfollow(request, pk):
+    user_to_unfollow = get_object_or_404(get_user_model(), id=pk)
+    if request.user.following.filter(id=pk).exists():
+        request.user.following.remove(user_to_unfollow)
+    return HttpResponseRedirect(reverse_lazy("base:user-detail", kwargs={"pk": pk}))
 
 
 class CreateUserViewSet(generics.CreateAPIView):

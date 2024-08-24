@@ -4,7 +4,7 @@ from django.urls import path, include
 from rest_framework import routers
 
 from social_media_base.views import PostViewSet
-from social_media_user.views import UserViewSet
+from social_media_user.views import UserViewSet, follow, unfollow
 
 app_name = "base"
 
@@ -15,4 +15,6 @@ router.register("posts", PostViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("users/<int:pk>/follow/", follow, name="follow_user"),
+    path("users/<int:pk>/unfollow/", unfollow, name="unfollow_user")
 ]

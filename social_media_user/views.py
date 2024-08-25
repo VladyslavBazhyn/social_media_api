@@ -18,6 +18,8 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, Bl
 
 from social_media_api import authentication
 from social_media_api.permissions import IsUserItself
+from social_media_base.models import Post
+from social_media_base.serializers import PostListSerializer
 from social_media_user.models import BlacklistedAccessToken
 from social_media_user.serializers import (
     UserCreateSerializer,
@@ -108,7 +110,7 @@ class UserLogoutAllView(views.APIView):
         return response.Response(status=status.HTTP_205_RESET_CONTENT)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """View set for retrieving different data about user by other users"""
 
     queryset = get_user_model().objects.all()
@@ -122,6 +124,23 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return UserDetailSerializer
         return UserListSerializer
+
+    @action(
+        methods=["get"],
+        detail=True,
+        url_path="my_posts",
+    )
+    def my_posts(self, request, **kwargs):
+        """Function to get all users post"""
+        print("I'm here")
+        pk = kwargs.get("pk", None)
+        if kwargs.get("me", None):
+            pk = request.user.id
+        posts = Post.objects.filter(owner_id=pk)
+        print(posts)
+        serializer = PostListSerializer(posts, many=True)
+        print(serializer)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_queryset(self):
         """

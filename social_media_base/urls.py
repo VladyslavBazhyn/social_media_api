@@ -16,5 +16,6 @@ router.register("posts", PostViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path("users/<int:pk>/follow/", follow, name="follow_user"),
-    path("users/<int:pk>/unfollow/", unfollow, name="unfollow_user")
+    path("users/<int:pk>/unfollow/", unfollow, name="unfollow_user"),
+    # path("posts/my_posts", users_posts, name="my_posts")
 ]

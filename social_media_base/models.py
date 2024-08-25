@@ -7,5 +7,6 @@ class Post(models.Model):
     text = models.TextField()
     post_image = models.ImageField(null=True, blank=True)
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    like_unlike = models.BooleanField(blank=True, default=None)  # Am I need to create some sastome method in viewset to switch this parameter?
+    like = models.BooleanField(blank=True, null=True, default=None)
     comment = models.CharField(max_length=155, null=True, blank=True, )
+    hashtags = models.TextField(max_length=100, null=True, blank=True)

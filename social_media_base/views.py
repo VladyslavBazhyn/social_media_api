@@ -1,11 +1,10 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import viewsets, response, status
-from rest_framework.decorators import action
+from rest_framework import viewsets, views, generics
 
 from social_media_api.permissions import IsOwnerOrReadOnly
 from social_media_base.models import Post
-from social_media_base.serializers import PostListSerializer
+from social_media_base.serializers import PostListSerializer, PostDetailSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -14,13 +13,15 @@ class PostViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return PostListSerializer
+        if self.action == "retrieve":
+            return PostDetailSerializer
         return PostListSerializer
 
     def get_permissions(self):
 
         permission_classes = self.permission_classes
 
-        if self.request.method == "POST":
+        if self.request.method in ["POST", "PUT", "PATCH", "DELETE"]:
             permission_classes = [IsOwnerOrReadOnly]
 
         return [permission() for permission in permission_classes]

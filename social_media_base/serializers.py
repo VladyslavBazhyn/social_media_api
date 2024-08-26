@@ -29,11 +29,23 @@ class PostListSerializer(PostBaseSerializer):
         fields = [
             "post_image",
             "text",
-            "like",
             "owner",
             "hashtags"
         ]
         read_only_fields = [
-            "like",
             "owner",
+        ]
+
+
+class PostDetailSerializer(PostBaseSerializer):
+    class Meta:
+        model = Post
+        fields = [
+            "text",
+            "post_image",
+            "hashtags",
+            "owner"
+        ]
+        read_only_fields = [
+            "owner"
         ]

@@ -17,5 +17,7 @@ urlpatterns = [
     path("", include(router.urls)),
     path("users/<int:pk>/follow/", follow, name="follow_user"),
     path("users/<int:pk>/unfollow/", unfollow, name="unfollow_user"),
-    path("posts/schedule_post", ScheduledPostCreationView.as_view(), name="post_schedule")
+    path(
+        "posts/schedule_post", ScheduledPostCreationView.as_view(), name="post_schedule"
+    ),
 ]

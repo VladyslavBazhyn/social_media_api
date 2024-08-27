@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('social_media_base', '0003_rename_like_unlike_post_like'),
+        ("social_media_base", "0003_rename_like_unlike_post_like"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='post',
-            name='like',
+            model_name="post",
+            name="like",
             field=models.BooleanField(blank=True, default=None, null=True),
         ),
     ]

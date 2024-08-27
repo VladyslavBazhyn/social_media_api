@@ -7,19 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('social_media_user', '0002_user_bio_user_birth_date_user_image_and_more'),
+        ("social_media_user", "0002_user_bio_user_birth_date_user_image_and_more"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='user',
+            name="user",
             managers=[
-                ('objects', social_media_user.models.UserManager()),
+                ("objects", social_media_user.models.UserManager()),
             ],
         ),
         migrations.AddField(
-            model_name='user',
-            name='nickname',
+            model_name="user",
+            name="nickname",
             field=models.TextField(blank=True),
         ),
     ]

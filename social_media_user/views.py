@@ -14,7 +14,10 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse_lazy
 
 from rest_framework_simplejwt import tokens
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+from rest_framework_simplejwt.token_blacklist.models import (
+    OutstandingToken,
+    BlacklistedToken,
+)
 
 from social_media_api import authentication
 from social_media_api.permissions import IsUserItself
@@ -26,7 +29,7 @@ from social_media_user.serializers import (
     UserManageSerializer,
     UserListSerializer,
     UserDetailSerializer,
-    UserChangePasswordSerializer
+    UserChangePasswordSerializer,
 )
 
 
@@ -50,13 +53,22 @@ class CreateUserViewSet(generics.CreateAPIView):
     """
     View set for new users to create an account
     """
+
     serializer_class = UserCreateSerializer
     queryset = get_user_model().objects.all()
-    permission_classes = [permissions.AllowAny]  # Everyone need to be able to create new account
-    authentication_classes = []  # Nothing authentication here, everyone need to be able to create new account
+    permission_classes = [
+        permissions.AllowAny
+    ]  # Everyone need to be able to create new account
+    authentication_classes = (
+        []
+    )  # Nothing authentication here, everyone need to be able to create new account
 
 
 class ChangePasswordView(generics.UpdateAPIView):
+    """
+    View set for  users to change their password
+    """
+
     queryset = get_user_model().objects.all()
     permission_classes = [IsUserItself]
     serializer_class = UserChangePasswordSerializer
@@ -77,29 +89,39 @@ class ManageUserViewSet(generics.RetrieveUpdateDestroyAPIView):
 
 
 class UserLogoutView(views.APIView):
+    """
+    View set for users to log out, invalidate their tokens
+    """
+
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         try:
             refresh_token = request.data.get("refresh_token")
             if not refresh_token:
-                return response.Response({"error": "No refresh token provided."}, status=status.HTTP_400_BAD_REQUEST)
+                return response.Response(
+                    {"error": "No refresh token provided."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             token = tokens.RefreshToken(refresh_token)
             token.blacklist()
 
             access_token = request.headers.get("Authorization").split()[1]
-            BlacklistedAccessToken.objects.create(
-                token=access_token,
-                user=request.user
-            )
+            BlacklistedAccessToken.objects.create(token=access_token, user=request.user)
 
             return response.Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return response.Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return response.Response(
+                {"error": str(e)}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class UserLogoutAllView(views.APIView):
+    """
+    View set for users to log out from all devices
+    """
+
     permission_classes = [IsUserItself]
 
     def post(self, request):
@@ -161,7 +183,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
                 name="nickname",
                 description="Filter by user's nickname (ex. ?nickname=smith)",
                 required=False,
-                type=OpenApiTypes.STR
+                type=OpenApiTypes.STR,
             )
         ]
     )

@@ -1,4 +1,5 @@
 """Here all costume permissions of the project"""
+
 from rest_framework import permissions
 
 
@@ -9,12 +10,8 @@ class IfAuthenticatedReadAndCreate(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return (
-            request.user.is_authenticated
-            and (
-                    request.method in permissions.SAFE_METHODS
-                    or request.method == "POST"
-            )
+        return request.user.is_authenticated and (
+            request.method in permissions.SAFE_METHODS or request.method == "POST"
         )
 
 

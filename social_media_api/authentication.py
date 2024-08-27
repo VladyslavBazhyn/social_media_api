@@ -1,3 +1,5 @@
+"""Custom authentication for user with email field instead of username"""
+
 from typing import Optional, Tuple
 
 from rest_framework.request import Request
@@ -8,8 +10,7 @@ from social_media_user.models import BlacklistedAccessToken
 
 class UserCustomAuthentication(authentication.JWTAuthentication):
     def authenticate(
-        self,
-        request: Request
+        self, request: Request
     ) -> Optional[Tuple[authentication.AuthUser, tokens.Token]]:
 
         auth_header = request.headers.get("Authorization")

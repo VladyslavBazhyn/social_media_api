@@ -6,6 +6,8 @@ from rest_framework import serializers
 
 
 class UserBaseSerializer(serializers.ModelSerializer):
+    """Base user serializer for all basic needs"""
+
     class Meta:
         model = get_user_model()
         fields = (
@@ -17,7 +19,7 @@ class UserBaseSerializer(serializers.ModelSerializer):
             "nickname",
             "image",
             "my_subscriptions",
-            "is_stuff"
+            "is_stuff",
         )
         extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
 
@@ -42,11 +44,12 @@ class UserBaseSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """Function to validate whether two wrote passwords are same"""
-        if (
-            (attrs.get("password") and attrs.get("password2"))
-            and (attrs["password"] != attrs["password2"])
+        if (attrs.get("password") and attrs.get("password2")) and (
+            attrs["password"] != attrs["password2"]
         ):
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."}
+            )
 
         return attrs
 
@@ -54,41 +57,47 @@ class UserBaseSerializer(serializers.ModelSerializer):
         """Function to validate whether old password wrote correctly"""
         user = self.context["request"].user
         if not user.check_password(value):
-            raise serializers.ValidationError({"old_password": "Old password is not correct"})
+            raise serializers.ValidationError(
+                {"old_password": "Old password is not correct"}
+            )
         return value
 
     def validate_email(self, value):
+        """Function to validate used email"""
         user = self.context["request"].user
         if get_user_model().objects.exclude(pk=user.pk).filter(email=value).exists():
-            raise serializers.ValidationError({"email": "This email is already in use."})
+            raise serializers.ValidationError(
+                {"email": "This email is already in use."}
+            )
         return value
 
     def validate_nickname(self, value):
+        """Function to validate nickname"""
         user = self.context["request"].user
         if get_user_model().objects.exclude(pk=user.pk).filter(nickname=value).exists():
-            raise serializers.ValidationError({"nickname": "This nickname is already in use."})
+            raise serializers.ValidationError(
+                {"nickname": "This nickname is already in use."}
+            )
         return value
 
 
 class UserCreateSerializer(UserBaseSerializer):
+    """Special serializer for user creation"""
+
     password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = get_user_model()
-        fields = [
-            "id",
-            "email",
-            "nickname",
-            "password",
-            "password2"
-        ]
+        fields = ["id", "email", "nickname", "password", "password2"]
         extra_kwargs = {
             "password": {"write_only": True, "min_length": 5},
-            "password2": {"write_only": True, "min_length": 5}
+            "password2": {"write_only": True, "min_length": 5},
         }
 
 
 class UserChangePasswordSerializer(UserBaseSerializer):
+    """Special serializer to get for user option to change his password"""
+
     password2 = serializers.CharField(write_only=True, required=True)
     old_password = serializers.CharField(write_only=True, required=True)
 
@@ -98,6 +107,8 @@ class UserChangePasswordSerializer(UserBaseSerializer):
 
 
 class UserManageSerializer(UserBaseSerializer):
+    """Serializer to handle all users data except password"""
+
     first_name = serializers.CharField(max_length=255)
     last_name = serializers.CharField(max_length=255)
 
@@ -114,6 +125,8 @@ class UserManageSerializer(UserBaseSerializer):
 
 
 class UserListSerializer(UserBaseSerializer):
+    """Serializer for users data list representation"""
+
     class Meta:
         model = get_user_model()
         fields = [
@@ -124,6 +137,8 @@ class UserListSerializer(UserBaseSerializer):
 
 
 class UserDetailSerializer(UserBaseSerializer):
+    """Serializer for users data detail representation"""
+
     class Meta:
         model = get_user_model()
         fields = [
@@ -133,5 +148,5 @@ class UserDetailSerializer(UserBaseSerializer):
             "image",
             "bio",
             "following",
-            "followers"
+            "followers",
         ]

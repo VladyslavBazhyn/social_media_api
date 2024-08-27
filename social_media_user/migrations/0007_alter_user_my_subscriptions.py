@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('social_media_user', '0006_alter_user_nickname'),
+        ("social_media_user", "0006_alter_user_nickname"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='my_subscriptions',
-            field=models.ManyToManyField(blank=True, related_name='my_followers', to=settings.AUTH_USER_MODEL),
+            model_name="user",
+            name="my_subscriptions",
+            field=models.ManyToManyField(
+                blank=True, related_name="my_followers", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

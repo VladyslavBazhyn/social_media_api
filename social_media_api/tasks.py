@@ -1,3 +1,5 @@
+"""Celery task for scheduled post creation"""
+
 from datetime import datetime
 
 from celery import shared_task
@@ -23,13 +25,11 @@ def planning_post_creation(
 
     # Creating a post only when time is appropriate
     if timezone.now() >= when:
-        post = Post.objects.create(
-            owner=user,
-            text=post_text,
-            hashtags=hashtags
-        )
+        post = Post.objects.create(owner=user, text=post_text, hashtags=hashtags)
         return f"Post created with ID {post.id}"
 
     else:
-        planning_post_creation.apply_async((user_id, when, post_text, hashtags), eta=when)
+        planning_post_creation.apply_async(
+            (user_id, when, post_text, hashtags), eta=when
+        )
         return f"Task rescheduled for {when}"

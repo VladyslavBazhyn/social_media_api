@@ -15,14 +15,28 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField()),
-                ('post_image', models.ImageField(blank=True, null=True, upload_to='')),
-                ('like_unlike', models.BooleanField(blank=True, default=None)),
-                ('comment', models.CharField(blank=True, max_length=155, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField()),
+                ("post_image", models.ImageField(blank=True, null=True, upload_to="")),
+                ("like_unlike", models.BooleanField(blank=True, default=None)),
+                ("comment", models.CharField(blank=True, max_length=155, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

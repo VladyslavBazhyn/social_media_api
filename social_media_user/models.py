@@ -1,4 +1,5 @@
 """User model which used in this project"""
+
 import os
 import uuid
 
@@ -74,10 +75,7 @@ class User(AbstractUser):
 
     #  User's preferences in social media
     following = models.ManyToManyField(
-        "self",
-        related_name="followers",
-        symmetrical=False,
-        blank=True
+        "self", related_name="followers", symmetrical=False, blank=True
     )
 
 

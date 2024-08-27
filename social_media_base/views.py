@@ -1,10 +1,17 @@
+import datetime
+
+from django.utils.dateparse import parse_datetime
+from django.utils import timezone
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import viewsets, views, generics
+from rest_framework import viewsets, views, generics, response, status
+from rest_framework.response import Response
 
 from social_media_api.permissions import IsOwnerOrReadOnly
+from social_media_api.tasks import planning_post_creation
 from social_media_base.models import Post
-from social_media_base.serializers import PostListSerializer, PostDetailSerializer
+from social_media_base.serializers import PostListSerializer, PostDetailSerializer, ScheduledPostSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -48,3 +55,43 @@ class PostViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+
+
+class ScheduledPostCreationView(generics.CreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = ScheduledPostSerializer
+
+    def post(self, request):
+
+        user_id = request.user.id
+
+        # Wrote data or standard values
+        post_text = request.data.get("post_text", "Just a new post")
+        hashtags = request.data.get("hashtags", "#authomatic")
+
+        # This should be a str in "%Y-%m-%dT%H:%M" format, or standard value
+        when = request.data.get("when")
+        # Convert it to a datetime.datetime format
+        try:
+            when = timezone.make_aware(
+                datetime.datetime.strptime(when, "%Y-%m-%dT%H:%M")
+            )
+        except ValueError:
+            return Response(
+                {"message": "You need to write a time in appropriate format"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Trigger the Celery task
+        planning_post_creation.apply_async(
+            args=[
+                user_id,
+                when,
+                post_text,
+                hashtags
+            ]
+        )
+
+        return Response(
+            {"message": "Post scheduled"}, status=status.HTTP_201_CREATED
+        )

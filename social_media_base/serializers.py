@@ -13,7 +13,7 @@ class PostBaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ["id", "post_image", "text", "owner", "like", "comment", "hashtags"]
+        fields = ["id", "text", "owner", "like", "comment", "hashtags"]
 
     def create(self, validated_data):
         """
@@ -29,7 +29,7 @@ class PostListSerializer(PostBaseSerializer):
 
     class Meta:
         model = Post
-        fields = ["post_image", "text", "owner", "hashtags"]
+        fields = ["text", "owner", "hashtags"]
         read_only_fields = [
             "owner",
         ]
@@ -40,7 +40,7 @@ class PostDetailSerializer(PostBaseSerializer):
 
     class Meta:
         model = Post
-        fields = ["text", "post_image", "hashtags", "owner"]
+        fields = ["text", "hashtags", "owner"]
         read_only_fields = ["owner"]
 
 

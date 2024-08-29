@@ -8,9 +8,11 @@ from rest_framework.test import APIClient
 
 from social_media_base.models import Post
 from social_media_base.serializers import PostListSerializer, PostDetailSerializer, ScheduledPostSerializer
-from tests.sample_functions import sample_post
+from social_media_user.serializers import UserListSerializer
+from tests.sample_functions import sample_post, sample_user
 
 POST_URL = reverse("base:post-list")
+USER_URL = reverse("base:user-list")
 POST_SCHEDULE_URL = reverse("base:post_schedule")
 USER_REGISTER_URL = reverse("user:register")
 
@@ -56,6 +58,7 @@ class AuthenticatedUserSocialMediaApiTest(TestCase):
         self.user = get_user_model().objects.create_user(
             email="test@test.com",
             password="testpassword",
+            password2="testpassword",
         )
         self.client.force_authenticate(self.user)
 
@@ -108,3 +111,47 @@ class AuthenticatedUserSocialMediaApiTest(TestCase):
             format="json"
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+    def test_post_and_user_filtering(self):
+        #  Create some users
+        user_1 = sample_user(
+            "first@first.com", "firstpass", "firstpass"
+        )
+        user_1.nickname = "user_1"
+
+        user_2 = sample_user(
+            "second@second.com", "secondpass", "secondpass"
+        )
+        user_2.nickname = "user_2"
+
+        user_3 = sample_user(
+            "therd@therd.com", "therdpass", "therdpass"
+        )
+        user_3.nickname = "therd"
+
+        # Create some posts
+        sample_post(user_id=1)
+        sample_post(user_id=1)
+        sample_post(user_id=1, post_hashtags="#therd")
+
+        # Filtering by nickname__icontains 'user'
+        users = get_user_model().objects.filter(nickname="user")
+        users_serializer = UserListSerializer(users, many=True)
+
+        # Filtering by post's hashtag
+        posts = Post.objects.filter(hashtags="#therd")
+        posts_serializer = PostListSerializer(posts, many=True)
+
+        # Whether filtering correct
+        res = self.client.get(
+            POST_URL,
+            {"hashtag": "ther"}
+        )
+        self.assertEqual(res.data, posts_serializer.data)
+
+        # Whether filtering correct
+        res = self.client.get(
+            USER_URL,
+            {"nickname": "user"}
+        )
+        self.assertEqual(res.data, users_serializer.data)

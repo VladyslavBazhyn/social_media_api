@@ -15,9 +15,9 @@ from social_media_user.serializers import UserListSerializer, UserDetailSerializ
 from tests.sample_functions import sample_post, sample_user
 
 POST_URL = reverse("base:post-list")
+POST_SCHEDULE_URL = reverse("base:post_schedule")
 USER_URL = reverse("base:user-list")
 USER_REGISTER_URL = reverse("user:register")
-POST_SCHEDULE_URL = reverse("base:post_schedule")
 
 
 def get_post_detail_url(post_id: int) -> str:
@@ -218,6 +218,41 @@ class AuthenticatedUserSocialMediaApiTest(TestCase):
             data=user_data, context={"request": request}
         )
         self.assertFalse(serializer.is_valid())
+
+    def test_custom_permissions(self):
+        """
+        Testing all custom permission except settings base permission
+        """
+        second_client = APIClient()
+        second_user = sample_user(
+            "second@second.com", "secondpas", "secondpas"
+        )
+        second_client.force_authenticate(second_user)
+
+        # Users can't change password of other users
+        res = second_client.patch(
+            reverse("user:change_password", args=[self.user.pk])
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+        # User can change only their own password
+        res = self.client.patch(
+            reverse("user:change_password", args=[self.user.pk])
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # Only owners can delete their own posts
+        post_1 = sample_post(
+            self.user.pk, "First_user", "#first"
+        )
+        res_1 = second_client.delete(
+            get_post_detail_url(post_1.id)
+        )
+        res_2 = self.client.delete(
+            get_post_detail_url(post_1.id)
+        )
+        self.assertEqual(res_1.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res_2.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_post_and_user_filtering(self):
         """

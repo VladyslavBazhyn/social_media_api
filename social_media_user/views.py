@@ -19,7 +19,6 @@ from rest_framework_simplejwt.token_blacklist.models import (
     BlacklistedToken,
 )
 
-from social_media_api import authentication
 from social_media_api.permissions import IsUserItself
 from social_media_base.models import Post
 from social_media_base.serializers import PostListSerializer
@@ -82,7 +81,7 @@ class ManageUserViewSet(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = get_user_model().objects.all()
     serializer_class = UserManageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsUserItself]
 
     def get_object(self):
         return self.request.user

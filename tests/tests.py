@@ -10,7 +10,8 @@ from rest_framework.test import APIClient, APIRequestFactory
 
 from social_media_base.models import Post
 from social_media_base.serializers import PostListSerializer, PostDetailSerializer, ScheduledPostSerializer
-from social_media_user.serializers import UserListSerializer, UserDetailSerializer, UserCreateSerializer
+from social_media_user.serializers import UserListSerializer, UserDetailSerializer, UserCreateSerializer, \
+    UserChangePasswordSerializer
 from tests.sample_functions import sample_post, sample_user
 
 POST_URL = reverse("base:post-list")
@@ -178,6 +179,44 @@ class AuthenticatedUserSocialMediaApiTest(TestCase):
             "password2": "sampleeee"
         }
         serializer = UserCreateSerializer(data=user_data)
+        self.assertFalse(serializer.is_valid())
+
+    def test_user_change_password_serializer_working_correct(self):
+        factory = APIRequestFactory()
+        request = factory.post("/change_password/")
+        request.user = self.user
+
+        # Correct data
+        user_data = {
+            "old_password": "testpassword",
+            "password": "sample",
+            "password2": "sample"
+        }
+        serializer = UserChangePasswordSerializer(
+            data=user_data, context={"request": request}
+        )
+        self.assertTrue(serializer.is_valid())
+
+        # Incorrect data (incorrect old password)
+        user_data = {
+            "old_password": "SAMPLE",
+            "password": "testpassword",
+            "password2": "testpassword"
+        }
+        serializer = UserChangePasswordSerializer(
+            data=user_data, context={"request": request}
+        )
+        self.assertFalse(serializer.is_valid())
+
+        # Incorrect data (new password not same as password2)
+        user_data = {
+            "old_password": "testpassword",
+            "password": "sample",
+            "password2": "sampleee"
+        }
+        serializer = UserChangePasswordSerializer(
+            data=user_data, context={"request": request}
+        )
         self.assertFalse(serializer.is_valid())
 
     def test_post_and_user_filtering(self):

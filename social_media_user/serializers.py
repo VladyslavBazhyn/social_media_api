@@ -94,6 +94,14 @@ class UserCreateSerializer(UserBaseSerializer):
             "password2": {"write_only": True, "min_length": 5},
         }
 
+    def validate_email(self, value):
+        """Function to validate used for registration email"""
+        if get_user_model().objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                {"email": "This email is already in use."}
+            )
+        return value
+
 
 class UserChangePasswordSerializer(UserBaseSerializer):
     """Special serializer to get for user option to change his password"""

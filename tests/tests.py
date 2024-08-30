@@ -18,6 +18,8 @@ POST_URL = reverse("base:post-list")
 POST_SCHEDULE_URL = reverse("base:post_schedule")
 USER_URL = reverse("base:user-list")
 USER_REGISTER_URL = reverse("user:register")
+GET_TOKEN_URL = reverse("user:token_obtain_pair")
+USER_LOGOUT_URL = reverse("user:logout")
 
 
 def get_post_detail_url(post_id: int) -> str:
@@ -218,6 +220,60 @@ class AuthenticatedUserSocialMediaApiTest(TestCase):
             data=user_data, context={"request": request}
         )
         self.assertFalse(serializer.is_valid())
+
+    def test_user_logout_view(self):
+        """
+        Test for checking whether user logout endpoint really invalidate users tokens
+        """
+        new_client = APIClient()
+        user_data = {
+            "email": "new@new.com",
+            "password": "newpas",
+            "password2": "newpas"
+        }
+        new_client.post(
+            USER_REGISTER_URL,
+            user_data
+        )
+
+        # Get access token from user
+        access_token = new_client.post(
+            GET_TOKEN_URL,
+            {
+                "email": user_data.get("email"),
+                "password": user_data.get("password")
+            }
+        ).data.get("access")
+
+        new_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+
+        # Check whether this access token is valid.
+        res = new_client.get(
+            POST_URL
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        # Take refresh token from client to sent user logout request
+        refresh_token = new_client.post(
+            GET_TOKEN_URL,
+            {
+                "email": user_data.get("email"),
+                "password": user_data.get("password")
+            }
+        ).data.get("refresh")
+
+        # Sent logout post which could add refresh token to a blacklist
+        # and access token to BlacklistedAccessToken
+        new_client.post(
+            USER_LOGOUT_URL,
+            {"refresh_token": refresh_token}
+        )
+
+        # Now this response shouldn't be successful
+        res = new_client.get(
+            POST_URL
+        )
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_custom_permissions(self):
         """
